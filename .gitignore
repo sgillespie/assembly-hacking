@@ -2,9 +2,7 @@
 *.o
 
 # Executables (common assembly program names)
-hello
-simd_example
-arithmetic
+bin/
 
 # Nix
 .direnv/

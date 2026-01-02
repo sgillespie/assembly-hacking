@@ -1,42 +1,41 @@
-# Makefile for assembly-hacking project
-# Builds x86-64 assembly files for learning and experimentation
-
-# Assembler and linker
 AS = as
 LD = ld
 
-# Flags
 ASFLAGS = 
-LDFLAGS = 
+LDFLAGS = -lc
 
-# Source directory
 SRC_DIR = src
+BIN_DIR = bin
 
 # Find all .asm files in the source directory
 ASM_SOURCES = $(wildcard $(SRC_DIR)/*.asm)
+# Object files
+OBJECTS = $(patsubst $(SRC_DIR)/%.asm,$(BIN_DIR)/%.o,$(ASM_SOURCES))
+
+.PRECIOUS: $(OBJECTS)
 
 # Generate target names (remove .asm extension)
-TARGETS = $(patsubst $(SRC_DIR)/%.asm,%,$(ASM_SOURCES))
-
-# Object files
-OBJECTS = $(patsubst $(SRC_DIR)/%.asm,%.o,$(ASM_SOURCES))
+TARGETS = $(patsubst $(SRC_DIR)/%.asm,$(BIN_DIR)/%,$(ASM_SOURCES))
 
 # Default target - build all executables
 .PHONY: all
-all: $(TARGETS)
+all: $(BIN_DIR) $(TARGETS)
 
-# Pattern rule to assemble .asm files to .o files
-%.o: $(SRC_DIR)/%.asm
+# Create bin directory if it doesn't exist
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+# assemble .asm files to .o files
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.asm
 	$(AS) $(ASFLAGS) $< -o $@
 
-# Pattern rule to link .o files to executables
-%: %.o
+# link .o files to executables
+$(BIN_DIR)/%: $(BIN_DIR)/%.o
 	$(LD) $(LDFLAGS) $< -o $@
 
-# Clean target - remove all object files and executables
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(TARGETS)
+	rm -r $(BIN_DIR)
 
 # Help target
 .PHONY: help
@@ -47,8 +46,3 @@ help:
 	@echo "  help    - Show this help message"
 	@echo ""
 	@echo "Individual targets: $(TARGETS)"
-	@echo ""
-	@echo "Example usage:"
-	@echo "  make              # Build all programs"
-	@echo "  make hello        # Build just the hello program"
-	@echo "  make clean        # Clean up build artifacts"
