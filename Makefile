@@ -1,7 +1,7 @@
 AS = as
 LD = ld
 
-ASFLAGS = 
+ASFLAGS = -g
 LDFLAGS = -lc
 
 SRC_DIR = src
